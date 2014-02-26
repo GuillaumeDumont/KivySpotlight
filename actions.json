@@ -1,0 +1,53 @@
+{
+	"items" :
+	[
+		{
+			"[name]" : "Bookmarks: Clean All",
+			"[cmd]" : ""
+		},
+		{
+			"[name]" : "Bookmarks: Select All",
+			"[cmd]" : ""
+		},
+		{
+			"[name]" : "Bookmarks: Select Next",
+			"[cmd]" : ""
+		},
+		{
+			"[name]" : "Bookmarks: Select Previous",
+			"[cmd]" : ""
+		},
+		{
+			"[name]" : "Bookmarks: Toggle",
+			"[cmd]" : ""
+		},
+		{
+			"[name]" : "StarCraft II : Heart of the Swarm",
+			"[cmd]" : ""
+		},
+		{
+			"[name]" : "StarCraft II : Heart of the Swarm",
+			"[cmd]" : ""
+		},
+		{
+			"[name]" : "StarCraft II : Heart of the Swarm",
+			"[cmd]" : ""
+		},
+		{
+			"[name]" : "StarCraft II : Heart of the Swarm",
+			"[cmd]" : ""
+		},
+		{
+			"[name]" : "StarCraft II : Heart of the Swarm",
+			"[cmd]" : ""
+		},
+		{
+			"[name]" : "StarCraft II : Heart of the Swarm",
+			"[cmd]" : ""
+		},
+		{
+			"[name]" : "Google chrome",
+			"[cmd]" : ""
+		}
+	]
+}
