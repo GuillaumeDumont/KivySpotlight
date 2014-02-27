@@ -3,7 +3,7 @@
 	[
 		{
 			"[name]" : "Bookmarks: Clean All",
-			"[cmd]" : ""
+			"[cmd]" : "C:/Windows/System32/notepad.exe"
 		},
 		{
 			"[name]" : "Bookmarks: Select All",

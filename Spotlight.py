@@ -15,6 +15,7 @@ from operator import itemgetter
 import kivy
 from kivy.app import App
 from kivy.uix.button import Button
+from kivy.logger import Logger
 from kivy.uix.label import Label
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.gridlayout import GridLayout
@@ -105,10 +106,12 @@ class Spotlight(App):
 		self._on_build = None
 		self._on_enter = None
 		self._on_text = None
+		# this field holds a preset number of buttons for efficiency
+		self._button_pool = []
 		# parse the callbacks passed in the constructor
 		self.user_bind(**kwargs)
 		# update the window size
-		self._update_window()
+		self.update_window()
 
 	def user_bind(self, **kwargs):
 		''' this function saves the callbacks passed to this function into the 3 available holders '''
@@ -121,7 +124,7 @@ class Spotlight(App):
 
 	def on_start(self):
 		'''  when the window is drawn and the application started we update the size of the window '''
-		self._update_window()
+		self.update_window()
 
 	def build(self):
 		''' this function builds the whole app '''
@@ -161,7 +164,7 @@ class Spotlight(App):
 			# since the search field has to re-claim the keyboard, we re-bind our callback
 			self._search_field._keyboard.bind(on_key_down=self._on_keyboard_down)
 
-	def _update_window(self, *args):
+	def update_window(self, *args):
 		''' based on the current amount of entries shown, we adapt the size of the window '''
 		result_count = len(self._results)
 		win_width = 2*self._padding + self._width
@@ -185,7 +188,21 @@ class Spotlight(App):
 		# mark the key press as handled
 		return True
 
+	def pre_allocate(self, number):
+		self._button_pool = []
+		for _ in range(0, number):
+			btn = Button(text='str', height=self._result_height, size_hint=(1, None), valign='middle',
+					halign='left', background_color=self._inactive_button_color, markup = True, padding_x = 0)
+			btn.bind(width = lambda s, w: s.setter('text_size')(s, (w-20, None)))
+			btn.bind(on_press=self._on_click)
+			btn.bind(texture_size=btn.setter('text_size'))
+			btn.background_normal = ''
+			btn.background_down = btn.background_normal
+			self._button_pool.append(btn)
+
 	def _build_button(self):
+		if self._button_pool:
+			return self._button_pool.pop()
 		btn = Button(text='str', height=self._result_height, size_hint=(1, None), valign='middle',
 					halign='left', background_color=self._inactive_button_color, markup = True, padding_x = 0)
 		btn.bind(width = lambda s, w: s.setter('text_size')(s, (w-20, None)))
@@ -195,7 +212,11 @@ class Spotlight(App):
 		btn.background_down = btn.background_normal
 		return btn
 
-	def add_result(self, str):
+	def _release_button(self, btn):
+		btn.background_color = self._inactive_button_color
+		self._button_pool.append(btn)
+
+	def add_result(self, str, redraw = True):
 		''' add a new entry to the dropdown list; an index is returned '''
 		btn = self._build_button()
 		btn.text = str
@@ -205,7 +226,8 @@ class Spotlight(App):
 		self._results.append((btn, sep))
 		# we reset the highlight
 		self._highlight_reset()
-		self._update_window()
+		if redraw:
+			self.update_window()
 		return len(self._results)-1
 
 	def get_result(self, idx):
@@ -215,7 +237,7 @@ class Spotlight(App):
 		e, _ = self._results[idx]
 		return e
 
-	def remove_result(self, idx):
+	def remove_result(self, idx, redraw = True):
 		''' remove a result object from its index - returned from a previous call to add_result '''
 		if not idx < len(self._results) or not idx >= 0:
 			return
@@ -224,19 +246,24 @@ class Spotlight(App):
 			self._drop_down_list.remove_widget(sep)
 		self._drop_down_list.remove_widget(e)
 		self._results.remove((e, sep))
+		self._release_button(e)
 		# we reset the highlight
 		self._highlight_reset()
 		# resize the window accordingly
-		self._update_window()
+		if redraw:
+			self.update_window()
 
-	def clear_results(self):
+	def clear_results(self, redraw = True):
 		''' clear all the results '''
+		for e, sep in self._results:
+			self._release_button(e)
 		self._drop_down_list.clear_widgets()
 		self._results = []
 		# we reset the highlight
 		self._highlight_reset()
 		# resize the window accordingly
-		self._update_window()
+		if redraw:
+			self.update_window()
 
 	def _on_click(self, instance):
 		''' this callback is called whenever a click on a result is done; the highlight is adapted '''

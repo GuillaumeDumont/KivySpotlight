@@ -1,6 +1,7 @@
-import os, sys, json, operator
+import os, sys, json, operator, subprocess
 from Spotlight import Spotlight
 import FuzzySearch
+from kivy.logger import Logger
 
 class Item:
 	def __init__(self, **kwargs):
@@ -40,6 +41,7 @@ class SpotlightController:
 					i = Item(name=name, cmd=cmd)
 					self._items.append(i)
 			self._items.sort(key=(lambda item : item.name[0]))
+			self._spotlight.pre_allocate(len(self._items))
 
 	def build(self):
 		self._display_list = []
@@ -48,7 +50,6 @@ class SpotlightController:
 				continue
 			item.index = self._spotlight.add_result('[color=dddddd]' + item.name + '[/color]')
 			self._display_list.append(item)
-		self._display_list.append(item)
 
 	def decorate(self, sentence, solution):
 		result = ''
@@ -59,10 +60,11 @@ class SpotlightController:
 	def on_text(self, instance, value, text):
 		text = text.strip()
 		text = text.translate(None, ' \t\n\r')
-		self._spotlight.clear_results()
+		self._spotlight.clear_results(False)
 		map(Item.reset, self._items)
 		if not text:			
 			self.build()
+			return
 		search_list = []
 		for item in self._items:
 			(score, solution) = FuzzySearch.tag(text, item.name)
@@ -71,15 +73,19 @@ class SpotlightController:
 		search_list.sort(key=operator.itemgetter(0), reverse=True)
 		self._display_list = []
 		for _, solution, item in search_list:
-			item.index = self._spotlight.add_result(self.decorate(item.name, solution))
+			item.index = self._spotlight.add_result(self.decorate(item.name, solution), False)
 			self._display_list.append(item)
+		self._spotlight.update_window()
 
 	def on_enter(self, instance, index):
 		if not self._display_list:
 			exit(0)
 		item = self._display_list[index]
+		self._start_cmd(item)
 		exit(0)
 		
+	def _start_cmd(self, item):
+		subprocess.Popen([item.cmd], close_fds=True, shell=True)
 
 	def __str__(self):
 		res = ''

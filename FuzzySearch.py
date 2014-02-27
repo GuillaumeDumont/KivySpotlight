@@ -1,4 +1,13 @@
-
+###############################################################################
+# 	@package docstring
+#
+#	@author 	Guillaume Dumont
+# 	@project	KivySpotlight
+#	@repo	 	http://github.com/GuillaumeDumont/KivySpotlight
+#
+#	@brief		Implementation of the "FuzzySearch" as done in Sublime Text
+#
+###############################################################################
 class weight:
 	acronym = 5
 	adjacent = 2
