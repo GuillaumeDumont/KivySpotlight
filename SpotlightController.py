@@ -79,10 +79,10 @@ class SpotlightController:
 
 	def on_enter(self, instance, index):
 		if not self._display_list:
-			exit(0)
+			self._spotlight.stop()
 		item = self._display_list[index]
 		self._start_cmd(item)
-		exit(0)
+		self._spotlight.stop()
 		
 	def _start_cmd(self, item):
 		subprocess.Popen([item.cmd], close_fds=True, shell=True)

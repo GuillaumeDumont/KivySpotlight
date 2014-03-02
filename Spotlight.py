@@ -11,6 +11,7 @@
 ''' standard imports '''
 from __future__ import division
 from operator import itemgetter
+import time, pygame
 ''' kivy imports '''
 import kivy
 from kivy.app import App
@@ -27,6 +28,7 @@ from kivy.lang import Builder
 from kivy.uix.textinput import TextInput
 from kivy.properties import StringProperty, ListProperty, NumericProperty
 from kivy.uix.widget import Widget
+
 
 class Separator(Widget):
 	'''
@@ -110,6 +112,7 @@ class Spotlight(App):
 		self._button_pool = []
 		# parse the callbacks passed in the constructor
 		self.user_bind(**kwargs)
+		self.build_window()
 		# update the window size
 		self.update_window()
 
@@ -126,7 +129,7 @@ class Spotlight(App):
 		'''  when the window is drawn and the application started we update the size of the window '''
 		self.update_window()
 
-	def build(self):
+	def build_window(self):
 		''' this function builds the whole app '''
 		self._search_field = SearchInput(multiline=False, focus=True, realdonly=False, height=self._search_field_height, size_hint=(1, None), markup=True,
 			valign='middle', font_size = 20, font_name = 'data/fonts/DejaVuSans.ttf')
@@ -146,6 +149,9 @@ class Spotlight(App):
 		self._layout.add_widget(self._scroller)
 		if self._on_build:
 			self._on_build()
+		return self._layout
+
+	def build(self):
 		return self._layout
 
 	def _on_new_text(self, value, text):
@@ -181,7 +187,7 @@ class Spotlight(App):
 			self._highlight_down()
 		elif keycode[1] == 'escape':
 			keyboard.release()
-			exit(0)
+			self.stop()
 		else:
 			# mark the key press as not handled
 			return False
@@ -272,6 +278,7 @@ class Spotlight(App):
 			if e is instance:
 				offset = i-self._highlight_index
 				self._highlight_update(offset)
+				self._on_text_validate(1)
 				break
 
 	def _scroll_update(self):
@@ -314,9 +321,6 @@ class Spotlight(App):
 	def _highlight_down(self):
 		self._highlight_update(+1)
 
-''' Main... '''
-if __name__ == '__main__':
-	from SpotlightController import SpotlightController
-	spotlight = Spotlight()
-	controller = SpotlightController(spotlight = spotlight)
-	spotlight.run()
+	def on_stop(self):
+		pygame.display.quit()
+		pass
