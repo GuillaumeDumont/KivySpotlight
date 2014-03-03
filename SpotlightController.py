@@ -24,6 +24,7 @@ class SpotlightController:
 			raise Exception('No spotlight provided')
 		if not os.path.exists(self._source_file):
 			raise Exception('The source file provided doesn\'t exist')
+		self._processes = []
 		self.update()
 		self._spotlight.user_bind(on_build = self.build)
 		self._spotlight.user_bind(on_text = self.on_text)
@@ -79,16 +80,24 @@ class SpotlightController:
 
 	def on_enter(self, instance, index):
 		if not self._display_list:
-			self._spotlight.stop()
+			return True
 		item = self._display_list[index]
 		self._start_cmd(item)
-		self._spotlight.stop()
+		return True
 		
-	def _start_cmd(self, item):
-		subprocess.Popen([item.cmd], close_fds=True, shell=True)
+	def _clean_processes(self):
+		for p in self._processes:
+			if p.poll():
+				self._processes.remove(p)
 
-	def __str__(self):
+	def _start_cmd(self, item):
+		#self._clean_processes()
+		#Logger.info(self)
+		self._processes.append(subprocess.Popen([item.cmd], stderr=subprocess.PIPE, stdout=subprocess.PIPE))
+
+	'''def __str__(self):
 		res = ''
 		for item in self._items:
 			res += str(item) + '\n'
 		return res
+'''

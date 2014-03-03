@@ -75,6 +75,9 @@ class SearchInput(TextInput):
 	''' This class derives from TextInput to change its style via the builder '''
 	pass
 
+def button_width_setter(s, w):
+	s.setter('text_size')(s, (w-20, None))
+
 class Spotlight(App):
 	''' This class represents the kivy app that will run the spotlight '''
 
@@ -154,6 +157,17 @@ class Spotlight(App):
 	def build(self):
 		return self._layout
 
+	def _unbind_all(self):
+		self._search_field.unbind(focus=self._on_focus)
+		self._search_field._keyboard.unbind(on_key_down=self._on_keyboard_down)
+		self._search_field.unbind(on_text_validate = self._on_text_validate)
+		self._search_field.unbind(text = self._on_new_text)
+		self._drop_down_list.unbind(minimum_height = self._drop_down_list.setter('height'))
+		for btn in self._button_pool:
+			btn.unbind(width = button_width_setter)
+			btn.unbind(on_press=self._on_click)
+			btn.unbind(texture_size=btn.setter('text_size'))
+
 	def _on_new_text(self, value, text):
 		if self._on_text:
 			self._on_text(self, value, text)
@@ -161,7 +175,10 @@ class Spotlight(App):
 	def _on_text_validate(self, value):
 		''' when the user pressed enter, we forward the callback to the controller with the current hightlight index '''
 		if self._on_enter:
-			self._on_enter(value, self._highlight_index)
+			ret = self._on_enter(value, self._highlight_index)
+			if ret:
+				self._unbind_all()
+				self.stop()
 
 	def _on_focus(self, instance, value):
 		''' this function is called whenever the focus of the search field changes. We do NOT allow defocus '''
@@ -187,6 +204,7 @@ class Spotlight(App):
 			self._highlight_down()
 		elif keycode[1] == 'escape':
 			keyboard.release()
+			self._unbind_all()
 			self.stop()
 		else:
 			# mark the key press as not handled
@@ -199,7 +217,7 @@ class Spotlight(App):
 		for _ in range(0, number):
 			btn = Button(text='str', height=self._result_height, size_hint=(1, None), valign='middle',
 					halign='left', background_color=self._inactive_button_color, markup = True, padding_x = 0)
-			btn.bind(width = lambda s, w: s.setter('text_size')(s, (w-20, None)))
+			btn.bind(width = button_width_setter)
 			btn.bind(on_press=self._on_click)
 			btn.bind(texture_size=btn.setter('text_size'))
 			btn.background_normal = ''
@@ -211,7 +229,7 @@ class Spotlight(App):
 			return self._button_pool.pop()
 		btn = Button(text='str', height=self._result_height, size_hint=(1, None), valign='middle',
 					halign='left', background_color=self._inactive_button_color, markup = True, padding_x = 0)
-		btn.bind(width = lambda s, w: s.setter('text_size')(s, (w-20, None)))
+		btn.bind(width = button_width_setter)
 		btn.bind(on_press=self._on_click)
 		btn.bind(texture_size=btn.setter('text_size'))
 		btn.background_normal = ''

@@ -7,7 +7,7 @@
 		},
 		{
 			"[name]" : "Bookmarks: Select All",
-			"[cmd]" : ""
+			"[cmd]" : "C:/Windows/system32/calc.exe"
 		},
 		{
 			"[name]" : "Bookmarks: Select Next",
@@ -19,7 +19,7 @@
 		},
 		{
 			"[name]" : "Bookmarks: Toggle",
-			"[cmd]" : ""
+			"[cmd]" : "C:/Windows/system32/calc.exe"
 		},
 		{
 			"[name]" : "StarCraft II : Heart of the Swarm",
